@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GXC — Margin Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --gold: #C8A96E;
+    --gold-light: #E8D4A8;
+    --black: #0D0D0D;
+    --white: #FAFAF8;
+    --surface: #F2F0EB;
+    --surface2: #E8E5DE;
+    --muted: #7A7770;
+    --green: #1A6B45;
+    --green-bg: #EAF5EE;
+    --red: #B83232;
+    --red-bg: #FBF0F0;
+    --amber-bg: #FDF6EC;
+    --border: rgba(0,0,0,0.08);
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--white);
+    color: var(--black);
+    min-height: 100vh;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--white);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--black);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .logo-mark span {
+    color: var(--gold);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--black);
+  }
+
+  .header-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 40px 80px;
+  }
+
+  .page-title {
+    font-size: 32px;
+    font-weight: 300;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  .page-title strong { font-weight: 600; }
+
+  .page-sub {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 40px;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    header { padding: 16px 20px; }
+    .main { padding: 24px 20px 60px; }
+  }
+
+  .panel {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--surface);
+  }
+
+  .panel-body { padding: 20px; }
+
+  .ctrl-group { margin-bottom: 20px; }
+  .ctrl-group:last-child { margin-bottom: 0; }
+
+  .ctrl-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .ctrl-label span:first-child {
+    font-size: 13px;
+    color: var(--black);
+  }
+
+  .ctrl-val {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gold);
+    background: var(--amber-bg);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  input[type=range] {
+    width: 100%;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--surface2);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--black);
+    border: 2px solid var(--white);
+    box-shadow: 0 0 0 1px var(--black);
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+
+  input[type=range]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .derived-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .derived-card {
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .derived-card .d-lbl {
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+
+  .derived-card .d-val {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--black);
+  }
+
+  .alert-box {
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    border-left: 3px solid;
+    display: none;
+  }
+
+  .alert-box.warn { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+  .alert-box.caution { background: var(--amber-bg); border-color: var(--gold); color: #7A5500; }
+  .alert-box.ok { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+
+  .pl-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+
+  .pl-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .pl-table .section-row td {
+    background: var(--surface);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 6px 12px;
+    border-bottom: none;
+  }
+
+  .pl-table .row-label { color: var(--black); }
+  .pl-table .row-sub { color: var(--muted); font-family: var(--mono); font-size: 11px; text-align: right; }
+  .pl-table .row-val { font-family: var(--mono); font-weight: 500; text-align: right; white-space: nowrap; }
+  .pl-table .total-row td { font-weight: 600; border-bottom: 2px solid var(--black); border-top: 2px solid var(--black); }
+  .pl-table .final-row td { font-size: 15px; font-weight: 600; padding: 12px; border-bottom: none; }
+
+  .positive { color: var(--green); }
+  .negative { color: var(--red); }
+  .neutral { color: var(--black); }
+
+  .chart-section { margin-top: 24px; }
+  .chart-wrap { position: relative; width: 100%; height: 220px; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .margin-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark"><span>GXC</span></div>
+    <span class="logo-text">Global X Connect</span>
+  </div>
+  <span class="header-tag">Margin Calculator — Ibiza 2026</span>
+</header>
+
+<div class="main">
+  <h1 class="page-title">Unit Economics <strong>& Margin Analyser</strong></h1>
+  <p class="page-sub">Adjust the inputs to model monthly profitability across different sales mix and cost scenarios.</p>
+
+  <div class="layout">
+
+    <!-- Controls -->
+    <div>
+      <div class="panel">
+        <div class="panel-header">Ticket & product</div>
+        <div class="panel-body">
+          <div class="ctrl-group">
+            <div class="ctrl-label"><span>Ticket price</span><span class="ctrl-val">€<span id="v-ticket">80</span></span></div>
+            <input type="range" id="ticket" min="40" max="300" step="5" value="80">
+          </div>
+          <div class="ctrl-group">
+            <div class="ctrl-label"><span>Product cost (COGS)</span><span class="ctrl-val">€<span id="v-cogs">25</span></span></div>
+            <input type="range" id="cogs" min="5" max="120" step="1" value="25">
+          </div>
+          <div class="ctrl-group">
+            <div class="ctrl-label"><span>Structure cost</span><span class="ctrl-val">€<span id="v-struct">6</span></span></div>
+            <input type="range" id="struct" min="0" max="30" step="1" value="6">
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <div class="panel-header">Distribution mix</div>
+        <div class="panel-body">
+          <div class="ctrl-group">
+            <div class="ctrl-label"><span>Tickets sold / month</span><span class="ctrl-val"><span id="v-tickets">500</span></span></div>
+            <input type="range" id="tickets" min="50" max="2000" step="50" value="500">
+          </div>
+          <div class="ctrl-group">
+            <div class="ctrl-label"><span>% sold via promoters</span><span class="ctrl-val"><span id="v-promo-share">50</span>%</span></div>
+            <input type="range" id="promo-share" min="0" max="100" step="5" value="50">
+          </div>
+          <div class="ctrl-group">
+            <div class="ctrl-label"><span>Promoter commission</span><span class="ctrl-val"><span id="v-promo-pct">25</span>%</span></div>
+            <input type="range" id="promo-pct" min="10" max="40" step="1" value="25">
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <div class="panel-header">Digital acquisition</div>
+        <div class="panel-body">
+          <div class="ctrl-group">
+            <div class="ctrl-label"><span>Cost per lead (CPL)</span><span class="ctrl-val">€<span id="v-cpl">1.20</span></span></div>
+            <input type="range" id="cpl" min="0.3" max="5" step="0.1" value="1.2">
+          </div>
+          <div class="ctrl-group">
+            <div class="ctrl-label"><span>Lead → sale CVR</span><span class="ctrl-val"><span id="v-cvr">4</span>%</span></div>
+            <input type="range" id="cvr" min="1" max="20" step="0.5" value="4">
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <div class="panel-header">Extra Ibiza fees</div>
+        <div class="panel-body">
+          <div class="ctrl-group">
+            <div class="ctrl-label"><span>Fixed monthly fee</span><span class="ctrl-val">€<span id="v-fixed">4000</span></span></div>
+            <input type="range" id="fixed" min="1000" max="8000" step="500" value="4000">
+          </div>
+          <div class="ctrl-group">
+            <div class="ctrl-label"><span>Performance fee</span><span class="ctrl-val"><span id="v-perf-pct">8</span>%</span></div>
+            <input type="range" id="perf-pct" min="1" max="15" step="0.5" value="8">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P&L -->
+    <div>
+      <div id="alert-box" class="alert-box"></div>
+
+      <div class="derived-grid">
+        <div class="derived-card">
+          <div class="d-lbl">Digital sales to generate</div>
+          <div class="d-val" id="d-digital">—</div>
+        </div>
+        <div class="derived-card">
+          <div class="d-lbl">Leads required</div>
+          <div class="d-val" id="d-leads">—</div>
+        </div>
+        <div class="derived-card">
+          <div class="d-lbl">Derived ad spend</div>
+          <div class="d-val" id="d-adspend">—</div>
+        </div>
+      </div>
+
+      <table class="pl-table">
+        <tr class="section-row"><td colspan="3">Revenue</td></tr>
+        <tr>
+          <td class="row-label">Gross revenue</td>
+          <td class="row-sub" id="s-gross"></td>
+          <td class="row-val neutral" id="pl-gross"></td>
+        </tr>
+        <tr class="section-row"><td colspan="3">Cost of goods</td></tr>
+        <tr>
+          <td class="row-label">Product cost</td>
+          <td class="row-sub" id="s-cogs"></td>
+          <td class="row-val negative" id="pl-cogs"></td>
+        </tr>
+        <tr>
+          <td class="row-label">Structure cost</td>
+          <td class="row-sub" id="s-struct"></td>
+          <td class="row-val negative" id="pl-struct"></td>
+        </tr>
+        <tr class="total-row">
+          <td class="row-label">Gross profit</td>
+          <td class="row-sub" id="s-gp"></td>
+          <td class="row-val" id="pl-gp"></td>
+        </tr>
+        <tr class="section-row"><td colspan="3">Marketing & distribution</td></tr>
+        <tr>
+          <td class="row-label">Promoter commission</td>
+          <td class="row-sub" id="s-promo"></td>
+          <td class="row-val negative" id="pl-promo"></td>
+        </tr>
+        <tr>
+          <td class="row-label">Extra — fixed fee</td>
+          <td class="row-sub" id="s-fixed"></td>
+          <td class="row-val negative" id="pl-fixed"></td>
+        </tr>
+        <tr>
+          <td class="row-label">Extra — performance fee</td>
+          <td class="row-sub" id="s-perf"></td>
+          <td class="row-val negative" id="pl-perf"></td>
+        </tr>
+        <tr>
+          <td class="row-label">Ad spend</td>
+          <td class="row-sub" id="s-ads"></td>
+          <td class="row-val negative" id="pl-ads"></td>
+        </tr>
+        <tr class="final-row">
+          <td class="row-label">Net margin</td>
+          <td class="row-sub" id="s-net"></td>
+          <td class="row-val" id="pl-net"></td>
+        </tr>
+      </table>
+
+      <div class="chart-section">
+        <div class="section-label">Cost & margin breakdown</div>
+        <div class="chart-wrap">
+          <canvas id="chart"></canvas>
+        </div>
+        <div class="legend" id="legend"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const fmt = n => (n < 0 ? '− €' : '€') + Math.abs(Math.round(n)).toLocaleString('en-GB');
+const pctStr = (n, d) => '(' + Math.round((n/d)*100) + '% of revenue)';
+let chart;
+
+const COLORS = ['#B4B2A9','#888780','#C8A96E','#3C3489','#7F77DD','#AFA9EC','#1D9E75'];
+
+function refresh() {
+  const ticket     = +document.getElementById('ticket').value;
+  const cogs       = +document.getElementById('cogs').value;
+  const struct     = +document.getElementById('struct').value;
+  const tickets    = +document.getElementById('tickets').value;
+  const promoShare = +document.getElementById('promo-share').value / 100;
+  const promoPct   = +document.getElementById('promo-pct').value / 100;
+  const cpl        = +document.getElementById('cpl').value;
+  const cvr        = +document.getElementById('cvr').value / 100;
+  const fixed      = +document.getElementById('fixed').value;
+  const perfPct    = +document.getElementById('perf-pct').value / 100;
+
+  document.getElementById('v-ticket').textContent = ticket;
+  document.getElementById('v-cogs').textContent = cogs;
+  document.getElementById('v-struct').textContent = struct;
+  document.getElementById('v-tickets').textContent = tickets.toLocaleString('en-GB');
+  document.getElementById('v-promo-share').textContent = Math.round(promoShare * 100);
+  document.getElementById('v-promo-pct').textContent = Math.round(promoPct * 100);
+  document.getElementById('v-cpl').textContent = cpl.toFixed(2);
+  document.getElementById('v-cvr').textContent = (+document.getElementById('cvr').value).toFixed(1);
+  document.getElementById('v-fixed').textContent = fixed.toLocaleString('en-GB');
+  document.getElementById('v-perf-pct').textContent = (+document.getElementById('perf-pct').value).toFixed(1);
+
+  const gross        = ticket * tickets;
+  const cogsTotal    = cogs * tickets;
+  const structTotal  = struct * tickets;
+  const grossProfit  = gross - cogsTotal - structTotal;
+
+  const digitalSales = Math.round(tickets * (1 - promoShare));
+  const leadsNeeded  = Math.round(digitalSales / cvr);
+  const adSpend      = leadsNeeded * cpl;
+
+  const promoCost    = gross * promoShare * promoPct;
+  const netRevForFee = gross - adSpend;
+  const perfFee      = netRevForFee > 0 ? netRevForFee * perfPct : 0;
+  const netMargin    = grossProfit - promoCost - fixed - perfFee - adSpend;
+  const netPct       = Math.round((netMargin / gross) * 100);
+
+  document.getElementById('d-digital').textContent = digitalSales.toLocaleString('en-GB');
+  document.getElementById('d-leads').textContent = leadsNeeded.toLocaleString('en-GB');
+  document.getElementById('d-adspend').textContent = fmt(adSpend);
+
+  document.getElementById('pl-gross').textContent  = fmt(gross);
+  document.getElementById('s-gross').textContent   = `${tickets.toLocaleString('en-GB')} × € ${ticket}`;
+  document.getElementById('pl-cogs').textContent   = fmt(-cogsTotal);
+  document.getElementById('s-cogs').textContent    = `${tickets.toLocaleString('en-GB')} × € ${cogs}`;
+  document.getElementById('pl-struct').textContent = fmt(-structTotal);
+  document.getElementById('s-struct').textContent  = `${tickets.toLocaleString('en-GB')} × € ${struct}`;
+  document.getElementById('pl-gp').textContent     = fmt(grossProfit);
+  document.getElementById('s-gp').textContent      = pctStr(grossProfit, gross);
+  document.getElementById('pl-gp').className       = 'row-val ' + (grossProfit >= 0 ? 'positive' : 'negative');
+
+  document.getElementById('pl-promo').textContent  = fmt(-promoCost);
+  document.getElementById('s-promo').textContent   = `${Math.round(promoShare*100)}% sales × ${Math.round(promoPct*100)}%`;
+  document.getElementById('pl-fixed').textContent  = fmt(-fixed);
+  document.getElementById('s-fixed').textContent   = 'per month';
+  document.getElementById('pl-perf').textContent   = fmt(-perfFee);
+  document.getElementById('s-perf').textContent    = `${(perfPct*100).toFixed(1)}% on net rev ${fmt(netRevForFee)}`;
+  document.getElementById('pl-ads').textContent    = fmt(-adSpend);
+  document.getElementById('s-ads').textContent     = `${leadsNeeded.toLocaleString('en-GB')} leads × € ${cpl.toFixed(2)}`;
+
+  document.getElementById('pl-net').textContent    = fmt(netMargin);
+  document.getElementById('s-net').textContent     = netPct + '% of revenue';
+  document.getElementById('pl-net').className      = 'row-val ' + (netMargin >= 0 ? 'positive' : 'negative');
+
+  const box = document.getElementById('alert-box');
+  box.style.display = 'block';
+  if (netMargin < 0) {
+    box.className = 'alert-box warn';
+    box.textContent = `⚠  At these parameters GXC is running at a loss of ${fmt(Math.abs(netMargin))} per month. The current structure is not sustainable.`;
+  } else if (netPct < 10) {
+    box.className = 'alert-box caution';
+    box.textContent = `Net margin of ${netPct}% — very thin. Any slow month, refund spike, or cost overrun tips into loss.`;
+  } else if (netPct < 20) {
+    box.className = 'alert-box caution';
+    box.textContent = `Net margin of ${netPct}% — acceptable but worth monitoring. Limited buffer for variance.`;
+  } else {
+    box.className = 'alert-box ok';
+    box.textContent = `Net margin of ${netPct}% — solid. The structure holds at these parameters.`;
+  }
+
+  const barLabels = ['Product cost','Structure cost','Promoter commission','Extra fixed','Extra perf. fee','Ad spend','Net margin'];
+  const barVals   = [cogsTotal, structTotal, Math.round(promoCost), fixed, Math.round(perfFee), Math.round(adSpend), Math.max(0, Math.round(netMargin))];
+  const barColors = netMargin >= 0 ? [...COLORS] : [...COLORS.slice(0,6), '#E24B4A'];
+
+  if (chart) {
+    chart.data.datasets[0].data = barVals;
+    chart.data.datasets[0].backgroundColor = barColors;
+    chart.update();
+  } else {
+    chart = new Chart(document.getElementById('chart'), {
+      type: 'bar',
+      data: {
+        labels: barLabels,
+        datasets: [{ data: barVals, backgroundColor: barColors, borderRadius: 4, borderSkipped: false }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10, family: 'DM Sans' }, maxRotation: 30, color: '#7A7770' } },
+          y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 10, family: 'DM Mono' }, color: '#7A7770', callback: v => fmt(v) } }
+        }
+      }
+    });
+
+    const legend = document.getElementById('legend');
+    legend.innerHTML = barLabels.map((l, i) =>
+      `<div class="legend-item"><div class="legend-dot" style="background:${COLORS[i] || '#E24B4A'}"></div>${l}</div>`
+    ).join('');
+  }
+}
+
+document.querySelectorAll('input[type=range]').forEach(el => el.addEventListener('input', refresh));
+refresh();
+</script>
+</body>
+</html>
